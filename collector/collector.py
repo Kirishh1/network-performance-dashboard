@@ -9,8 +9,15 @@ DB_PATH = "data/network_logs.db"
 os.makedirs("data", exist_ok=True)
 
 
+WINDOW_SIZE = 24
 
 latency_window = []
+
+def update_window(latency):
+    latency_window.append(latency)
+    if len(latency_window) > WINDOW_SIZE:
+        latency_window.pop(0)
+
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -61,8 +68,10 @@ if __name__ == "__main__":
         latency = ping_target()
         if latency is not None:
             log_latency(latency)
+            update_window(latency)
             print(f"Logged latency: {latency} ms")
-        time.sleep(5)
+
         jitter = calculate_jitter()
         print(f"Jitter: {jitter:.2f} ms")
+        time.sleep(5)
 
